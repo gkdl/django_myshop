@@ -1,16 +1,19 @@
 from django.db import models
 from django.urls import reverse
+from parler.models import TranslatableModel, TranslatedFields
 
-class Category(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200,
-                            unique=True)
+class Category(TranslatableModel):
+    translations = TranslatedFields(
+        name = models.CharField(max_length=200),
+        slug = models.SlugField(max_length=200,
+                                unique=True)
+    )
 
     class Meta:
-        ordering = ['name']
-        indexes = [
-            models.Index(fields=['name']),
-        ]
+        # ordering = ['name']
+        # indexes = [
+        #     models.Index(fields=['name']),
+        # ]
         verbose_name = 'category'
         verbose_name_plural = 'categories'
 
@@ -22,15 +25,18 @@ class Category(models.Model):
                        args=[self.slug])
 
 
-class Product(models.Model):
+class Product(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(max_length=200),
+        slug=models.SlugField(max_length=200),
+        description=models.TextField(blank=True)
+    )
     category = models.ForeignKey(Category,
                                  related_name='products',
                                  on_delete=models.CASCADE)
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200)
+
     image = models.ImageField(upload_to='products/%Y/%m/%d',
                               blank=True)
-    description = models.TextField(blank=True)
 
     # 화폐의 금액을 저장할 때는 항상 DecimalField를 사용한다. FloatField는 내부적으로 파이썬의 float를 사용하는 반면, DecimalField는 파이썬의 십진수 타입을 사용한다.
     # Decimal 타입을 사용하면 부동 소수점 반올림 문제를 피할 수 있다.
@@ -41,10 +47,10 @@ class Product(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['name']
+        # ordering = ['name']
         indexes = [
-            models.Index(fields=['id', 'slug']),
-            models.Index(fields=['name']),
+            # models.Index(fields=['id', 'slug']),
+            # models.Index(fields=['name']),
             models.Index(fields=['-created']),
         ]
 
